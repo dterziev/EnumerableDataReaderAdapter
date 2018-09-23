@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\EnumerableDataReaderAdapter\EnumerableDataReaderAdapter.csproj" />
+    <ProjectReference Include="..\..\src\EnumerableDataReaderAdapter\EnumerableDataReaderAdapter.csproj" />
   </ItemGroup>
 
 </Project>
