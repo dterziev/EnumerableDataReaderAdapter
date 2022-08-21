@@ -25,9 +25,11 @@ namespace EnumerableDataReaderAdapter.Benchmarks
 
     }
 
-    [ClrJob, CoreJob]
+    [SimpleJob(BenchmarkDotNet.Jobs.RuntimeMoniker.Net472)]
+    [SimpleJob(BenchmarkDotNet.Jobs.RuntimeMoniker.NetCoreApp31)]
+    [SimpleJob(BenchmarkDotNet.Jobs.RuntimeMoniker.Net60)]
     [RPlotExporter, RankColumn]
-    //[MemoryDiagnoser]
+    [MemoryDiagnoser]
     public class EnumerableDataReaderBenchmark
     {
         private DataStructure[] data;
