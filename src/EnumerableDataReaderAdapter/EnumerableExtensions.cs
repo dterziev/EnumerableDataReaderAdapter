@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections;
 using System.Data;
 using System.Data.Common;
 using System.Runtime.CompilerServices;
@@ -11,7 +9,7 @@ namespace EnumerableDataReaderAdapter
     {
         public static IDataReader ToDataReader<T>(
             this IEnumerable<T> data,
-            Action<ColumnMappings<T>> configureMappings = null)
+            Action<ColumnMappings<T>>? configureMappings = null)
         {
             var columnMappings = new ColumnMappings<T>();
             configureMappings?.Invoke(columnMappings);
@@ -37,16 +35,16 @@ namespace EnumerableDataReaderAdapter
 
         private sealed class EnumerableReaderAdapter<T> : DbDataReader
         {
-            private readonly (string ColumnName, Type ColumnType, Func<T, object> ValueGetter)[] _mappings;
+            private readonly (string ColumnName, Type ColumnType, Func<T, object?> ValueGetter)[] _mappings;
             private bool _isClosed = false;
             private IEnumerator<T> _enumerator;
-            private T _current;
+            private T _current = default!;
             private Lazy<Dictionary<string, int>> _columnLookup;
             private long _rowCount = 0;
 
             public EnumerableReaderAdapter(
                 IEnumerable<T> rows,
-                (string ColumnName, Type ColumnType, Func<T, object> ValueGetter)[] mappings)
+                (string ColumnName, Type ColumnType, Func<T, object?> ValueGetter)[] mappings)
             {
                 _enumerator = rows.GetEnumerator();
                 _mappings = mappings;
@@ -109,7 +107,7 @@ namespace EnumerableDataReaderAdapter
                 }
                 else
                 {
-                    _current = default(T);
+                    _current = default!;
                 }
 
                 return next;
@@ -121,8 +119,8 @@ namespace EnumerableDataReaderAdapter
                 {
                     _isClosed = true;
                     _enumerator.Dispose();
-                    _enumerator = null;
-                    _current = default(T);
+                    _enumerator = null!;
+                    _current = default!;
                 }
             }
 
@@ -130,9 +128,9 @@ namespace EnumerableDataReaderAdapter
             public override int GetOrdinal(string name) => _columnLookup.Value[name];
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public override object GetValue(int i) => _mappings[i].ValueGetter(_current);
+            public override object GetValue(int i) => _mappings[i].ValueGetter(_current)!;
 
-            public override int GetValues(object[] values)
+            public override int GetValues(object?[] values)
             {
                 var max = values.Length < _mappings.Length
                     ? values.Length
@@ -153,13 +151,13 @@ namespace EnumerableDataReaderAdapter
             public override bool IsClosed => _isClosed;
             public override int RecordsAffected => (int)_rowCount;
             public override string GetName(int i) => _mappings[i].ColumnName;
-            public override string GetDataTypeName(int i) => null;
-            public override Type GetFieldType(int i) => null;
+            public override string GetDataTypeName(int i) => null!;
+            public override Type GetFieldType(int i) => null!;
             public override bool GetBoolean(int i) => (bool)GetValue(i);
             public override byte GetByte(int i) => (byte)GetValue(i);
-            public override long GetBytes(int i, long fieldOffset, byte[] buffer, int bufferoffset, int length) => throw new NotSupportedException();
+            public override long GetBytes(int i, long fieldOffset, byte[]? buffer, int bufferoffset, int length) => throw new NotSupportedException();
             public override char GetChar(int i) => (char)GetValue(i);
-            public override long GetChars(int i, long fieldoffset, char[] buffer, int bufferoffset, int length) => throw new NotSupportedException();
+            public override long GetChars(int i, long fieldoffset, char[]? buffer, int bufferoffset, int length) => throw new NotSupportedException();
             public override Guid GetGuid(int i) => (Guid)GetValue(i);
             public override short GetInt16(int i) => (short)GetValue(i);
             public override int GetInt32(int i) => (int)GetValue(i);

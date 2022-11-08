@@ -1,6 +1,4 @@
-﻿using System;
-using System.Data;
-using System.Linq;
+﻿using System.Data;
 using System.Runtime.CompilerServices;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Running;
@@ -25,15 +23,14 @@ namespace EnumerableDataReaderAdapter.Benchmarks
 
     }
 
-    [SimpleJob(BenchmarkDotNet.Jobs.RuntimeMoniker.Net472)]
-    [SimpleJob(BenchmarkDotNet.Jobs.RuntimeMoniker.NetCoreApp31)]
     [SimpleJob(BenchmarkDotNet.Jobs.RuntimeMoniker.Net60)]
+    [SimpleJob(BenchmarkDotNet.Jobs.RuntimeMoniker.Net70)]
     [RPlotExporter, RankColumn]
     [MemoryDiagnoser]
     public class EnumerableDataReaderBenchmark
     {
-        private DataStructure[] data;
-        private object[] buffer;
+        private DataStructure[] data = default!;
+        private object[] buffer = default!;
 
         static readonly ColumnMappings<DataStructure> _mappingDelegates = new ColumnMappings<DataStructure>()
             .Add(nameof(DataStructure.StringField), typeof(string), p => p.StringField)
