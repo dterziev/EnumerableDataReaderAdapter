@@ -58,112 +58,92 @@ namespace EnumerableDataReaderAdapter.Benchmarks
         [Benchmark(Baseline = true)]
         public void DefaultMapping_ByColumnIndex()
         {
-            using (var reader = _data.ToDataReader())
-            {
-                while (reader.Read()) GetDataByColumnIndex(reader);
-            }
+            using var reader = _data.ToDataReader();
+            while (reader.Read()) GetDataByColumnIndex(reader);
         }
 
         [Benchmark]
         public void MappingExpressions_ByColumnIndex()
         {
-            using (var reader = _data.ToDataReader(
+            using var reader = _data.ToDataReader(
                 mapping => mapping
                     .Add(p => p.StringField)
                     .Add(p => p.IntField)
                     .Add(p => p.NullableIntField)
-            ))
-            {
-                while (reader.Read()) GetDataByColumnIndex(reader);
-            }
+            );
+            while (reader.Read()) GetDataByColumnIndex(reader);
         }
 
         [Benchmark]
         public void MappingExpressions_ByColumnIndex_CachedMapping()
         {
-            using (var reader = _data.ToDataReader(_mappingExpressions))
-            {
-                while (reader.Read()) GetDataByColumnIndex(reader);
-            }
+            using var reader = _data.ToDataReader(_mappingExpressions);
+            while (reader.Read()) GetDataByColumnIndex(reader);
         }
 
         [Benchmark]
         public void MappingDelegates_ByColumnIndex()
         {
-            using (var reader = _data.ToDataReader(
+            using var reader = _data.ToDataReader(
                 mapping => mapping
                     .Add(nameof(DataStructure.StringField), typeof(string), p => p.StringField)
                     .Add(nameof(DataStructure.IntField), typeof(int), p => p.IntField)
                     .Add(nameof(DataStructure.NullableIntField), typeof(int?), p => p.NullableIntField)
-            ))
-            {
-                while (reader.Read()) GetDataByColumnIndex(reader);
-            }
+            );
+            while (reader.Read()) GetDataByColumnIndex(reader);
         }
 
         [Benchmark]
         public void MappingDelegates_ByColumnIndex_CachedMapping()
         {
-            using (var reader = _data.ToDataReader(_mappingDelegates))
-            {
-                while (reader.Read()) GetDataByColumnIndex(reader);
-            }
+            using var reader = _data.ToDataReader(_mappingDelegates);
+            while (reader.Read()) GetDataByColumnIndex(reader);
         }
 
         [Benchmark()]
         public void DefaultMapping_ByColumnName()
         {
-            using (var reader = _data.ToDataReader())
-            {
-                while (reader.Read()) GetDataByColumnName(reader);
-            }
+            using var reader = _data.ToDataReader();
+            while (reader.Read()) GetDataByColumnName(reader);
         }
 
         [Benchmark]
         public void MappingExpressions_ByColumnName()
         {
-            using (var reader = _data.ToDataReader(
+            using var reader = _data.ToDataReader(
                 mapping => mapping
                     .Add(p => p.StringField)
                     .Add(p => p.IntField)
                     .Add(p => p.NullableIntField)
-            ))
-            {
-                while (reader.Read()) GetDataByColumnName(reader);
-            }
+            );
+            while (reader.Read()) GetDataByColumnName(reader);
         }
 
         [Benchmark]
         public void MappingExpressions_ByColumnName_CachedMapping()
         {
-            using (var reader = _data.ToDataReader(_mappingExpressions)) 
-            {
-                while (reader.Read()) GetDataByColumnName(reader);
-            }
+            using var reader = _data.ToDataReader(_mappingExpressions);
+            while (reader.Read()) GetDataByColumnName(reader);
         }
 
 
         [Benchmark]
         public void MappingDelegates_ByColumnName()
         {
-            using (var reader = _data.ToDataReader(
+            using var reader = _data.ToDataReader(
                 mapping => mapping
                     .Add(nameof(DataStructure.StringField), typeof(string), p => p.StringField)
                     .Add(nameof(DataStructure.IntField), typeof(int), p => p.IntField)
                     .Add(nameof(DataStructure.NullableIntField), typeof(int?), p => p.NullableIntField)
-            ))
-            {
-                while (reader.Read()) GetDataByColumnName(reader);
-            }
+            );
+            while (reader.Read()) GetDataByColumnName(reader);
         }
 
         [Benchmark]
         public void MappingDelegates_ByColumnName_CachedMapping()
         {
-            using (var reader = _data.ToDataReader(_mappingDelegates)) 
-            {
-                while (reader.Read()) GetDataByColumnName(reader);
-            }
+            using var reader = _data.ToDataReader(_mappingDelegates);
+            while (reader.Read()) GetDataByColumnName(reader);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
