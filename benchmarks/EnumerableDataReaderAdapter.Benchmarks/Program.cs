@@ -25,12 +25,13 @@ namespace EnumerableDataReaderAdapter.Benchmarks
 
     [SimpleJob(BenchmarkDotNet.Jobs.RuntimeMoniker.Net60)]
     [SimpleJob(BenchmarkDotNet.Jobs.RuntimeMoniker.Net70)]
+    [SimpleJob(BenchmarkDotNet.Jobs.RuntimeMoniker.Net80)]
     [RPlotExporter, RankColumn]
     [MemoryDiagnoser]
     public class EnumerableDataReaderBenchmark
     {
-        private DataStructure[] data = default!;
-        private object[] buffer = default!;
+        private DataStructure[] _data = default!;
+        private object[] _buffer = default!;
 
         static readonly ColumnMappings<DataStructure> _mappingDelegates = new ColumnMappings<DataStructure>()
             .Add(nameof(DataStructure.StringField), typeof(string), p => p.StringField)
@@ -48,137 +49,117 @@ namespace EnumerableDataReaderAdapter.Benchmarks
         [GlobalSetup]
         public void Setup()
         {
-            data = Enumerable.Range(1, N)
+            _data = Enumerable.Range(1, N)
                 .Select(i => new DataStructure($"{i}", i, (i % 2) == 0 ? (int?)null : i))
                 .ToArray();
-            buffer = new object[3];
+            _buffer = new object[3];
         }
 
         [Benchmark(Baseline = true)]
         public void DefaultMapping_ByColumnIndex()
         {
-            using (var reader = data.ToDataReader())
-            {
-                while (reader.Read()) GetDataByColumnIndex(reader);
-            }
+            using var reader = _data.ToDataReader();
+            while (reader.Read()) GetDataByColumnIndex(reader);
         }
 
         [Benchmark]
         public void MappingExpressions_ByColumnIndex()
         {
-            using (var reader = data.ToDataReader(
+            using var reader = _data.ToDataReader(
                 mapping => mapping
                     .Add(p => p.StringField)
                     .Add(p => p.IntField)
                     .Add(p => p.NullableIntField)
-            ))
-            {
-                while (reader.Read()) GetDataByColumnIndex(reader);
-            }
+            );
+            while (reader.Read()) GetDataByColumnIndex(reader);
         }
 
         [Benchmark]
         public void MappingExpressions_ByColumnIndex_CachedMapping()
         {
-            using (var reader = data.ToDataReader(_mappingExpressions))
-            {
-                while (reader.Read()) GetDataByColumnIndex(reader);
-            }
+            using var reader = _data.ToDataReader(_mappingExpressions);
+            while (reader.Read()) GetDataByColumnIndex(reader);
         }
 
         [Benchmark]
         public void MappingDelegates_ByColumnIndex()
         {
-            using (var reader = data.ToDataReader(
+            using var reader = _data.ToDataReader(
                 mapping => mapping
                     .Add(nameof(DataStructure.StringField), typeof(string), p => p.StringField)
                     .Add(nameof(DataStructure.IntField), typeof(int), p => p.IntField)
                     .Add(nameof(DataStructure.NullableIntField), typeof(int?), p => p.NullableIntField)
-            ))
-            {
-                while (reader.Read()) GetDataByColumnIndex(reader);
-            }
+            );
+            while (reader.Read()) GetDataByColumnIndex(reader);
         }
 
         [Benchmark]
         public void MappingDelegates_ByColumnIndex_CachedMapping()
         {
-            using (var reader = data.ToDataReader(_mappingDelegates))
-            {
-                while (reader.Read()) GetDataByColumnIndex(reader);
-            }
+            using var reader = _data.ToDataReader(_mappingDelegates);
+            while (reader.Read()) GetDataByColumnIndex(reader);
         }
 
         [Benchmark()]
         public void DefaultMapping_ByColumnName()
         {
-            using (var reader = data.ToDataReader())
-            {
-                while (reader.Read()) GetDataByColumnName(reader);
-            }
+            using var reader = _data.ToDataReader();
+            while (reader.Read()) GetDataByColumnName(reader);
         }
 
         [Benchmark]
         public void MappingExpressions_ByColumnName()
         {
-            using (var reader = data.ToDataReader(
+            using var reader = _data.ToDataReader(
                 mapping => mapping
                     .Add(p => p.StringField)
                     .Add(p => p.IntField)
                     .Add(p => p.NullableIntField)
-            ))
-            {
-                while (reader.Read()) GetDataByColumnName(reader);
-            }
+            );
+            while (reader.Read()) GetDataByColumnName(reader);
         }
 
         [Benchmark]
         public void MappingExpressions_ByColumnName_CachedMapping()
         {
-            using (var reader = data.ToDataReader(_mappingExpressions)) 
-            {
-                while (reader.Read()) GetDataByColumnName(reader);
-            }
+            using var reader = _data.ToDataReader(_mappingExpressions);
+            while (reader.Read()) GetDataByColumnName(reader);
         }
 
 
         [Benchmark]
         public void MappingDelegates_ByColumnName()
         {
-            using (var reader = data.ToDataReader(
+            using var reader = _data.ToDataReader(
                 mapping => mapping
                     .Add(nameof(DataStructure.StringField), typeof(string), p => p.StringField)
                     .Add(nameof(DataStructure.IntField), typeof(int), p => p.IntField)
                     .Add(nameof(DataStructure.NullableIntField), typeof(int?), p => p.NullableIntField)
-            ))
-            {
-                while (reader.Read()) GetDataByColumnName(reader);
-            }
+            );
+            while (reader.Read()) GetDataByColumnName(reader);
         }
 
         [Benchmark]
         public void MappingDelegates_ByColumnName_CachedMapping()
         {
-            using (var reader = data.ToDataReader(_mappingDelegates)) 
-            {
-                while (reader.Read()) GetDataByColumnName(reader);
-            }
+            using var reader = _data.ToDataReader(_mappingDelegates);
+            while (reader.Read()) GetDataByColumnName(reader);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void GetDataByColumnIndex(IDataReader reader)
         {
-            buffer[0] = reader[0];
-            buffer[1] = reader[1];
-            buffer[2] = reader[2];
+            _buffer[0] = reader[0];
+            _buffer[1] = reader[1];
+            _buffer[2] = reader[2];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void GetDataByColumnName(IDataReader reader)
         {
-            buffer[0] = reader[nameof(DataStructure.StringField)];
-            buffer[1] = reader[nameof(DataStructure.IntField)];
-            buffer[2] = reader[nameof(DataStructure.NullableIntField)];
+            _buffer[0] = reader[nameof(DataStructure.StringField)];
+            _buffer[1] = reader[nameof(DataStructure.IntField)];
+            _buffer[2] = reader[nameof(DataStructure.NullableIntField)];
         }
 
     }

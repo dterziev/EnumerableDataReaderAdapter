@@ -32,7 +32,7 @@ namespace EnumerableDataReaderAdapter
                 }).ToArray();
         }
 
-        private List<(string ColumnName, Type ColumnType, Func<T, object?> ValueGetter)> _mappings = new();
+        private readonly List<(string ColumnName, Type ColumnType, Func<T, object?> ValueGetter)> _mappings = new();
 
         public ColumnMappings<T> Add(string columnName, Type type, Func<T, object?> valueGetter)
         {
@@ -68,15 +68,10 @@ namespace EnumerableDataReaderAdapter
             }
 
             var body = propertyExpression.Body;
-            var memberExpression = body is UnaryExpression ue
+            var memberExpression = (body is UnaryExpression ue
                 ? ue.Operand as MemberExpression
-                : body as MemberExpression;
-
-            if (memberExpression is null)
-            {
-                throw new ArgumentException("Expected a member expression.", nameof(propertyExpression));
-            }
-
+                : body as MemberExpression) 
+                ?? throw new ArgumentException("Expected a member expression.", nameof(propertyExpression));
             _mappings.Add(
                 (ColumnName: memberExpression.Member.Name,
                 ColumnType: memberExpression.Type, 

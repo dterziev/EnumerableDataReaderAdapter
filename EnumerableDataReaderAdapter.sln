@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28010.2019
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34112.27
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{19031506-5145-42F6-9AB6-AE7C1E4ACF80}"
 EndProject
@@ -14,6 +14,17 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EnumerableDataReaderAdapter.Tests", "test\EnumerableDataReaderAdapter.Tests\EnumerableDataReaderAdapter.Tests.csproj", "{ED087CEB-649B-437A-BE76-1E346EC33B24}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EnumerableDataReaderAdapter.Benchmarks", "benchmarks\EnumerableDataReaderAdapter.Benchmarks\EnumerableDataReaderAdapter.Benchmarks.csproj", "{80F9D7ED-93C8-4805-89A4-3B581AB00F34}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{C5F1FAE8-92F2-4FF8-B6C8-A2AFE3A67F8B}"
+	ProjectSection(SolutionItems) = preProject
+		.gitattributes = .gitattributes
+		.gitignore = .gitignore
+		Directory.Build.props = Directory.Build.props
+		Directory.Packages.props = Directory.Packages.props
+		LICENSE = LICENSE
+		nuget.config = nuget.config
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

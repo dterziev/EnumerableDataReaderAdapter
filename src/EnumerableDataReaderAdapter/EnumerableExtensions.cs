@@ -39,7 +39,7 @@ namespace EnumerableDataReaderAdapter
             private bool _isClosed = false;
             private IEnumerator<T> _enumerator;
             private T _current = default!;
-            private Lazy<Dictionary<string, int>> _columnLookup;
+            private readonly Lazy<Dictionary<string, int>> _columnLookup;
             private long _rowCount = 0;
 
             public EnumerableReaderAdapter(
@@ -68,7 +68,7 @@ namespace EnumerableDataReaderAdapter
 
             public override DataTable GetSchemaTable()
             {
-                DataTable table = new DataTable("SchemaTable");
+                DataTable table = new("SchemaTable");
                 table.Columns.Add(SchemaTableColumn.ColumnName, typeof(string));
                 table.Columns.Add(SchemaTableColumn.ColumnOrdinal, typeof(int));
                 table.Columns.Add(SchemaTableColumn.ColumnSize, typeof(int));
@@ -155,9 +155,9 @@ namespace EnumerableDataReaderAdapter
             public override Type GetFieldType(int i) => null!;
             public override bool GetBoolean(int i) => (bool)GetValue(i);
             public override byte GetByte(int i) => (byte)GetValue(i);
-            public override long GetBytes(int i, long fieldOffset, byte[]? buffer, int bufferoffset, int length) => throw new NotSupportedException();
+            public override long GetBytes(int i, long fieldOffset, byte[]? buffer, int bufferOffset, int length) => throw new NotSupportedException();
             public override char GetChar(int i) => (char)GetValue(i);
-            public override long GetChars(int i, long fieldoffset, char[]? buffer, int bufferoffset, int length) => throw new NotSupportedException();
+            public override long GetChars(int i, long fieldOffset, char[]? buffer, int bufferOffset, int length) => throw new NotSupportedException();
             public override Guid GetGuid(int i) => (Guid)GetValue(i);
             public override short GetInt16(int i) => (short)GetValue(i);
             public override int GetInt32(int i) => (int)GetValue(i);
