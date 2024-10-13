@@ -26,6 +26,7 @@ namespace EnumerableDataReaderAdapter.Benchmarks
     [SimpleJob(BenchmarkDotNet.Jobs.RuntimeMoniker.Net60)]
     [SimpleJob(BenchmarkDotNet.Jobs.RuntimeMoniker.Net70)]
     [SimpleJob(BenchmarkDotNet.Jobs.RuntimeMoniker.Net80)]
+    [SimpleJob(BenchmarkDotNet.Jobs.RuntimeMoniker.Net90)]
     [RPlotExporter, RankColumn]
     [MemoryDiagnoser]
     public class EnumerableDataReaderBenchmark
