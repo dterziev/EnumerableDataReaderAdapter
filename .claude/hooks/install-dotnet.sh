@@ -1,11 +1,13 @@
 #!/bin/bash
 # Install .NET 10 SDK and essential build tools for development
-# This script is intended to be run as a Claude Code startup hook
+# This script is intended to be run as a Claude Code Web startup hook
 
-set -e
+set -euo pipefail
 
-DOTNET_VERSION="10.0"
-INSTALL_DIR="$HOME/.dotnet"
+# Only run in remote Claude Code environments
+if [ "${CLAUDE_CODE_REMOTE:-}" != "true" ]; then
+  exit 0
+fi
 
 # Install essential build tools if missing
 if ! command -v tail &> /dev/null || ! command -v head &> /dev/null; then
@@ -13,34 +15,37 @@ if ! command -v tail &> /dev/null || ! command -v head &> /dev/null; then
     apt-get update -qq && apt-get install -y -qq coreutils > /dev/null 2>&1 || true
 fi
 
-# Check if .NET 10 is already installed
-if command -v dotnet &> /dev/null; then
-    INSTALLED_VERSION=$(dotnet --version 2>/dev/null || echo "")
-    if [[ "$INSTALLED_VERSION" == 10.* ]]; then
-        echo ".NET 10 SDK is already installed (version: $INSTALLED_VERSION)"
-        exit 0
-    fi
-fi
-
-echo "Installing .NET $DOTNET_VERSION SDK..."
+echo "Downloading .NET install script..."
 
 # Download and run the official Microsoft install script
 curl -sSL https://dot.net/v1/dotnet-install.sh -o /tmp/dotnet-install.sh
 chmod +x /tmp/dotnet-install.sh
 
-# Install .NET 10 SDK
-/tmp/dotnet-install.sh --channel $DOTNET_VERSION --install-dir "$INSTALL_DIR"
+INSTALL_DIR="$HOME/.dotnet"
+
+echo "Installing additional .NET runtime frameworks..."
+/tmp/dotnet-install.sh --channel 10.0 --install-dir "$INSTALL_DIR"
+
+echo "Installing additional .NET runtime frameworks..."
+/tmp/dotnet-install.sh --channel 6.0 --runtime dotnet --install-dir "$INSTALL_DIR"
+/tmp/dotnet-install.sh --channel 7.0 --runtime dotnet --install-dir "$INSTALL_DIR"
+/tmp/dotnet-install.sh --channel 8.0 --runtime dotnet --install-dir "$INSTALL_DIR"
+/tmp/dotnet-install.sh --channel 9.0 --runtime dotnet --install-dir "$INSTALL_DIR"
 
 # Clean up
 rm -f /tmp/dotnet-install.sh
 
 # Add to PATH for current session
 export DOTNET_ROOT="$INSTALL_DIR"
-export PATH="$INSTALL_DIR:$PATH"
+export PATH="$PATH:$INSTALL_DIR:$INSTALL_DIR/tools"
+
+# Add to PATH in the CLAUDE_ENV_FILE
+echo "export DOTNET_ROOT=\"$INSTALL_DIR\"" >> "${CLAUDE_ENV_FILE:-/dev/null}"
+echo "export PATH=\"\$PATH:$INSTALL_DIR:$INSTALL_DIR/tools\"" >> "${CLAUDE_ENV_FILE:-/dev/null}"
 
 # Verify installation
 echo ".NET SDK installed successfully:"
-"$INSTALL_DIR/dotnet" --version
+dotnet --version
 
 # Configure NuGet to work with Claude Code proxy
 # .NET's HttpClient doesn't properly handle proxy credentials from environment variables,

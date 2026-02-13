@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "pwd 1>&2 && ~/scripts/install-dotnet.sh"
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/install-dotnet.sh"
           }
         ]
       }
