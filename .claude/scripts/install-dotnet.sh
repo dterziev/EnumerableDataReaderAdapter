@@ -13,23 +13,36 @@ if ! command -v tail &> /dev/null || ! command -v head &> /dev/null; then
     apt-get update -qq && apt-get install -y -qq coreutils > /dev/null 2>&1 || true
 fi
 
-# Check if .NET 10 is already installed
-if command -v dotnet &> /dev/null; then
-    INSTALLED_VERSION=$(dotnet --version 2>/dev/null || echo "")
-    if [[ "$INSTALLED_VERSION" == 10.* ]]; then
-        echo ".NET 10 SDK is already installed (version: $INSTALLED_VERSION)"
-        exit 0
-    fi
-fi
-
-echo "Installing .NET $DOTNET_VERSION SDK..."
+echo "Downloading .NET install script..."
 
 # Download and run the official Microsoft install script
 curl -sSL https://dot.net/v1/dotnet-install.sh -o /tmp/dotnet-install.sh
 chmod +x /tmp/dotnet-install.sh
 
-# Install .NET 10 SDK
-/tmp/dotnet-install.sh --channel $DOTNET_VERSION --install-dir "$INSTALL_DIR"
+# Check if .NET 10 is already installed
+INSTALL_SDK=true
+if command -v dotnet &> /dev/null; then
+    INSTALLED_VERSION=$(dotnet --version 2>/dev/null || echo "")
+    if [[ "$INSTALLED_VERSION" == 10.* ]]; then
+        echo ".NET 10 SDK is already installed (version: $INSTALLED_VERSION)"
+        INSTALL_SDK=false
+    fi
+fi
+
+# Install .NET 10 SDK if not already present
+if [ "$INSTALL_SDK" = true ]; then
+    echo "Installing .NET $DOTNET_VERSION SDK..."
+    /tmp/dotnet-install.sh --channel $DOTNET_VERSION --install-dir "$INSTALL_DIR"
+else
+    echo "Skipping SDK installation (already present)"
+fi
+
+# Always install additional runtime frameworks required for testing
+echo "Installing additional .NET runtime frameworks..."
+/tmp/dotnet-install.sh --channel 6.0 --runtime dotnet --install-dir "$INSTALL_DIR"
+/tmp/dotnet-install.sh --channel 7.0 --runtime dotnet --install-dir "$INSTALL_DIR"
+/tmp/dotnet-install.sh --channel 8.0 --runtime dotnet --install-dir "$INSTALL_DIR"
+/tmp/dotnet-install.sh --channel 9.0 --runtime dotnet --install-dir "$INSTALL_DIR"
 
 # Clean up
 rm -f /tmp/dotnet-install.sh
