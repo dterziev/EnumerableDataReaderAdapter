@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pwd 1>&2 && ~/scripts/install-dotnet.sh"
+          }
+        ]
+      }
+    ]
+  }
+}
