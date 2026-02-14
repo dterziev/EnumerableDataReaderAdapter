@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Frozen;
 using System.Data;
 using System.Data.Common;
 using System.Runtime.CompilerServices;
@@ -39,7 +40,10 @@ namespace EnumerableDataReaderAdapter
             private bool _isClosed = false;
             private IEnumerator<T> _enumerator;
             private T _current = default!;
-            private readonly Lazy<Dictionary<string, int>> _columnLookup;
+            private readonly FrozenDictionary<string, int> _columnLookup;
+#if NET9_0_OR_GREATER
+            private readonly FrozenDictionary<string, int>.AlternateLookup<ReadOnlySpan<char>> _alternateLookup;
+#endif
             private long _rowCount = 0;
 
             public EnumerableReaderAdapter(
@@ -48,15 +52,16 @@ namespace EnumerableDataReaderAdapter
             {
                 _enumerator = rows.GetEnumerator();
                 _mappings = mappings;
-                _columnLookup = new Lazy<Dictionary<string, int>>(() =>
+
+                var dict = new Dictionary<string, int>(mappings.Length);
+                for (int i = 0; i < mappings.Length; i++)
                 {
-                    var result = new Dictionary<string, int>(_mappings.Length);
-                    for (int i = 0; i < _mappings.Length; i++)
-                    {
-                        result.Add(_mappings[i].ColumnName, i);
-                    }
-                    return result;
-                });
+                    dict.Add(mappings[i].ColumnName, i);
+                }
+                _columnLookup = dict.ToFrozenDictionary();
+#if NET9_0_OR_GREATER
+                _alternateLookup = _columnLookup.GetAlternateLookup<ReadOnlySpan<char>>();
+#endif
             }
 
             public override bool HasRows => true;
@@ -125,20 +130,25 @@ namespace EnumerableDataReaderAdapter
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public override int GetOrdinal(string name) => _columnLookup.Value[name];
+#if NET9_0_OR_GREATER
+            public override int GetOrdinal(string name) => _alternateLookup[name.AsSpan()];
+#else
+            public override int GetOrdinal(string name) => _columnLookup[name];
+#endif
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public override object GetValue(int i) => _mappings[i].ValueGetter(_current)!;
 
             public override int GetValues(object?[] values)
             {
-                var max = values.Length < _mappings.Length
-                    ? values.Length
-                    : _mappings.Length;
+                var max = Math.Min(values.Length, _mappings.Length);
 
-                for (int i = 0; i < max; i++)
+                ReadOnlySpan<(string ColumnName, Type ColumnType, Func<T, object?> ValueGetter)> mappingSpan = _mappings.AsSpan(0, max);
+                Span<object?> valuesSpan = values.AsSpan(0, max);
+
+                for (int i = 0; i < mappingSpan.Length; i++)
                 {
-                    values[i] = _mappings[i].ValueGetter(_current);
+                    valuesSpan[i] = mappingSpan[i].ValueGetter(_current);
                 }
 
                 return max;
@@ -167,7 +177,14 @@ namespace EnumerableDataReaderAdapter
             public override string GetString(int i) => (string)GetValue(i);
             public override decimal GetDecimal(int i) => (decimal)GetValue(i);
             public override DateTime GetDateTime(int i) => (DateTime)GetValue(i);
-            public override bool IsDBNull(int i) => GetValue(i) == null || GetValue(i) == DBNull.Value;
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public override bool IsDBNull(int i)
+            {
+                var value = GetValue(i);
+                return value is null or DBNull;
+            }
+
             public override int FieldCount => _mappings.Length;
         }
     }

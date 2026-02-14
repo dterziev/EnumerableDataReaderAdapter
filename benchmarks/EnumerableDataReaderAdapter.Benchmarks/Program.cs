@@ -23,8 +23,6 @@ namespace EnumerableDataReaderAdapter.Benchmarks
 
     }
 
-    [SimpleJob(BenchmarkDotNet.Jobs.RuntimeMoniker.Net80)]
-    [SimpleJob(BenchmarkDotNet.Jobs.RuntimeMoniker.Net90)]
     [SimpleJob(BenchmarkDotNet.Jobs.RuntimeMoniker.Net10_0)]
     [RPlotExporter, RankColumn]
     [MemoryDiagnoser]
