@@ -8,7 +8,7 @@ A lightweight .NET library that converts `IEnumerable<T>` into an `IDataReader`,
 - **Automatic property mapping** -- public properties are discovered automatically when no explicit mapping is provided.
 - **Fluent column mapping API** -- choose exactly which columns to expose using expression-based or delegate-based mappings.
 - **Computed columns** -- map constant values or derived expressions that don't correspond to a property.
-- **Multi-target** -- supports .NET 8.0, .NET 9.0, and .NET 10.0.
+- **Multi-target** -- supports .NET 9.0 and .NET 10.0.
 
 ## Installation
 

@@ -41,9 +41,7 @@ namespace EnumerableDataReaderAdapter
             private IEnumerator<T> _enumerator;
             private T _current = default!;
             private readonly FrozenDictionary<string, int> _columnLookup;
-#if NET9_0_OR_GREATER
             private readonly FrozenDictionary<string, int>.AlternateLookup<ReadOnlySpan<char>> _alternateLookup;
-#endif
             private long _rowCount = 0;
 
             public EnumerableReaderAdapter(
@@ -59,9 +57,7 @@ namespace EnumerableDataReaderAdapter
                     dict.Add(mappings[i].ColumnName, i);
                 }
                 _columnLookup = dict.ToFrozenDictionary();
-#if NET9_0_OR_GREATER
                 _alternateLookup = _columnLookup.GetAlternateLookup<ReadOnlySpan<char>>();
-#endif
             }
 
             public override bool HasRows => true;
@@ -130,11 +126,7 @@ namespace EnumerableDataReaderAdapter
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#if NET9_0_OR_GREATER
             public override int GetOrdinal(string name) => _alternateLookup[name.AsSpan()];
-#else
-            public override int GetOrdinal(string name) => _columnLookup[name];
-#endif
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public override object GetValue(int i) => _mappings[i].ValueGetter(_current)!;
