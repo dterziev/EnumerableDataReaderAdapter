@@ -8,7 +8,7 @@ A lightweight .NET library that converts `IEnumerable<T>` into an `IDataReader`,
 - **Automatic property mapping** -- public properties are discovered automatically when no explicit mapping is provided.
 - **Fluent column mapping API** -- choose exactly which columns to expose using expression-based or delegate-based mappings.
 - **Computed columns** -- map constant values or derived expressions that don't correspond to a property.
-- **Multi-target** -- supports .NET 8.0, .NET 9.0, and .NET 10.0.
+- **Multi-target** -- supports .NET 9.0 and .NET 10.0.
 
 ## Installation
 
@@ -111,6 +111,33 @@ dotnet test
 ```bash
 dotnet run --project benchmarks/EnumerableDataReaderAdapter.Benchmarks -c Release
 ```
+
+### Results
+
+The benchmarks measure reading 10,000 rows through the `IDataReader` interface using different mapping strategies and column access patterns on .NET 10.0.
+
+```
+BenchmarkDotNet v0.15.8, Linux Ubuntu 24.04.3 LTS (Noble Numbat)
+unknown 2.10GHz, 1 CPU, 16 logical and 16 physical cores
+.NET SDK 10.0.103
+  [Host]    : .NET 10.0.3 (10.0.3, 10.0.326.7603), X64 RyuJIT x86-64-v4
+  .NET 10.0 : .NET 10.0.3 (10.0.3, 10.0.326.7603), X64 RyuJIT x86-64-v4
+
+Job=.NET 10.0  Runtime=.NET 10.0
+```
+
+| Method                                         | N     | Mean     | Error     | StdDev    | Ratio | RatioSD | Rank | Gen0    | Allocated | Alloc Ratio |
+|----------------------------------------------- |------ |---------:|----------:|----------:|------:|--------:|-----:|--------:|----------:|------------:|
+| DefaultMapping_ByColumnIndex                   | 10000 | 1.977 ms | 0.0393 ms | 0.0623 ms |  1.00 |    0.04 |    1 | 85.9375 | 352.23 KB |        1.00 |
+| MappingExpressions_ByColumnIndex               | 10000 | 2.047 ms | 0.0406 ms | 0.0732 ms |  1.04 |    0.05 |    1 | 89.8438 | 366.67 KB |        1.04 |
+| MappingExpressions_ByColumnIndex_CachedMapping | 10000 | 1.982 ms | 0.0385 ms | 0.0564 ms |  1.00 |    0.04 |    1 | 85.9375 | 352.29 KB |        1.00 |
+| MappingDelegates_ByColumnIndex                 | 10000 | 1.970 ms | 0.0392 ms | 0.0575 ms |  1.00 |    0.04 |    1 | 85.9375 | 352.53 KB |        1.00 |
+| MappingDelegates_ByColumnIndex_CachedMapping   | 10000 | 1.969 ms | 0.0391 ms | 0.0841 ms |  1.00 |    0.05 |    1 | 85.9375 | 352.29 KB |        1.00 |
+| DefaultMapping_ByColumnName                    | 10000 | 2.053 ms | 0.0408 ms | 0.0705 ms |  1.04 |    0.05 |    1 | 85.9375 | 352.23 KB |        1.00 |
+| MappingExpressions_ByColumnName                | 10000 | 2.268 ms | 0.0450 ms | 0.0776 ms |  1.15 |    0.05 |    2 | 89.8438 |  366.6 KB |        1.04 |
+| MappingExpressions_ByColumnName_CachedMapping  | 10000 | 2.006 ms | 0.0385 ms | 0.0804 ms |  1.02 |    0.05 |    1 | 85.9375 | 352.29 KB |        1.00 |
+| MappingDelegates_ByColumnName                  | 10000 | 2.016 ms | 0.0397 ms | 0.0441 ms |  1.02 |    0.04 |    1 | 85.9375 | 352.53 KB |        1.00 |
+| MappingDelegates_ByColumnName_CachedMapping    | 10000 | 2.024 ms | 0.0389 ms | 0.0519 ms |  1.02 |    0.04 |    1 | 85.9375 | 352.37 KB |        1.00 |
 
 ## License
 
